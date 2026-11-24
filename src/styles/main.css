@@ -212,6 +212,12 @@ button, input, select { font-family: inherit; }
 }
 
 @media (max-width: 680px) {
+  .container { padding: 0 14px; }
+  .header__inner { gap: 8px; }
+  .brand { font-size: 0.86rem; letter-spacing: 0.04em; gap: 8px; min-width: 0; }
+  .header__right { gap: 6px; flex-shrink: 0; }
+  .header .btn--sm { padding: 6px 10px; font-size: 0.72rem; }
+  .icon-btn { width: 34px; height: 34px; }
   .icon-btn.mobile-menu-btn { display: inline-flex; }
   .nav { display: none; position: fixed; top: 64px; left: 0; right: 0; background: var(--bg); border-bottom: 1px solid var(--border-strong); padding: 16px 24px; flex-direction: column; z-index: 95; }
   .nav.is-open { display: flex; }
