@@ -23,12 +23,35 @@ const {
   hardenHttpServer
 } = require('./security');
 
+const {
+  initClientAccount,
+  handleClientApi
+} = require('./clientAccount');
+
 const PORT = Number(process.env.PORT) || 4002;
 const HOST = process.env.HOST || '0.0.0.0';
 const ROOT_DIR = path.join(__dirname, '..');
 const DIST_DIR = path.join(ROOT_DIR, 'dist');
 
+const CLIENT_ACCOUNT_CONFIG = {
+  prefix: 'sever',
+  ordersTable: 'orders',
+  seed: {
+    name: 'Алексей Морозов',
+    email: 'client@sever-wear.ru',
+    phone: '+7 (916) 442-19-80',
+    password: process.env.DEMO_CLIENT_PASSWORD || 'client12345',
+    meta: {
+      city: 'Москва',
+      address: 'ПВЗ СДЭК на ул. Бауманская, 43',
+      size: 'L',
+      orderCodes: ['SVR-2041']
+    }
+  }
+};
+
 const db = initDatabase();
+initClientAccount(db, CLIENT_ACCOUNT_CONFIG);
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -166,6 +189,15 @@ async function handleApi(req, res, parsed) {
 
   const isSecure = req.headers['x-forwarded-proto'] === 'https' || process.env.NODE_ENV === 'production';
   const user = getSessionUser(db, req);
+
+  if (pathname.startsWith('/api/client/')) {
+    return handleClientApi(req, res, parsed, db, CLIENT_ACCOUNT_CONFIG, {
+      sendJson,
+      readJson,
+      loginLimiter,
+      isSecure
+    });
+  }
 
   if (method === 'GET' && pathname === '/api/bootstrap') {
     const products = db

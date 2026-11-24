@@ -14,6 +14,7 @@ import {
   Tag,
   Trash2,
   Truck,
+  User,
   X
 } from 'lucide-react';
 import {
@@ -31,10 +32,28 @@ import {
   saveCart,
   storeApi
 } from './api';
+import { createClientAuth } from './clientAuth';
 import ProductModal from './components/ProductModal';
 import PrivacyModal from './components/PrivacyModal';
 import AdminStore from './pages/AdminStore';
+import ClientCabinet from './components/ClientCabinet';
 import CookieBanner, { setCookie } from './components/CookieBanner';
+
+const severClientAuth = createClientAuth({
+  prefix: 'sever',
+  demoSeed: {
+    name: 'Алексей Морозов',
+    email: 'client@sever-wear.ru',
+    phone: '+7 (916) 442-19-80',
+    password: 'client12345',
+    meta: {
+      city: 'Москва',
+      address: 'ПВЗ СДЭК на ул. Бауманская, 43',
+      size: 'L',
+      orderCodes: ['SVR-2041']
+    }
+  }
+});
 
 export default function App() {
   const [theme, setTheme] = useState(() => document.documentElement.getAttribute('data-theme') || 'dark');
@@ -42,6 +61,8 @@ export default function App() {
 
   const [products, setProducts] = useState([]);
   const [user, setUser] = useState(null);
+  const [client, setClient] = useState(null);
+  const [view, setView] = useState('store'); // 'store' | 'account'
   const [isAdminRoute, setIsAdminRoute] = useState(false);
 
   const [activeCategory, setActiveCategory] = useState('all');
@@ -95,6 +116,10 @@ export default function App() {
 
   useEffect(() => {
     refreshCatalog();
+    severClientAuth
+      .me()
+      .then((res) => setClient(res.client || null))
+      .catch(() => {});
 
     async function syncHash() {
       const adminOk = await isSecretAdminHash(window.location.hash);
@@ -104,6 +129,14 @@ export default function App() {
     window.addEventListener('hashchange', syncHash);
     return () => window.removeEventListener('hashchange', syncHash);
   }, []);
+
+  useEffect(() => {
+    if (!client) return;
+    setClientName(client.name || '');
+    setClientPhone(client.phone || '');
+    if (client.meta?.city) setCity(client.meta.city);
+    if (client.meta?.address !== undefined) setAddress(client.meta.address || '');
+  }, [client]);
 
   useEffect(() => {
     saveCart(cart);
@@ -205,6 +238,10 @@ export default function App() {
       setTrackCode(res.order.code);
       setTrackedOrder(res.order);
       setSavedCodes(getSavedOrderCodes());
+      if (client) {
+        const updated = await severClientAuth.appendCode('orderCodes', res.order.code).catch(() => null);
+        if (updated) setClient(updated);
+      }
       await refreshCatalog();
     } catch (err) {
       setOrderError(err.message);
@@ -229,7 +266,21 @@ export default function App() {
 
   function scrollToId(id) {
     setMobileMenuOpen(false);
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    if (view !== 'store') {
+      setView('store');
+      setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 30);
+    } else {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  function handleRepeatOrder(orderItems) {
+    orderItems.forEach((line) => {
+      const prod = products.find((p) => p.id === line.productId && p.stock > 0);
+      if (prod) addToCart(prod, line.size);
+    });
+    setView('store');
+    setCartOpen(true);
   }
 
   return (
@@ -271,6 +322,16 @@ export default function App() {
               <button type="button" className="nav__link" onClick={() => scrollToId('delivery')}>
                 Доставка и гарантия
               </button>
+              <button
+                type="button"
+                className="nav__link"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setView('account');
+                }}
+              >
+                Личный кабинет
+              </button>
             </nav>
           )}
 
@@ -285,6 +346,20 @@ export default function App() {
               <span>Корзина</span>
               {cartCount > 0 && <span className="cart-badge mono">{cartCount}</span>}
             </button>
+            {!isAdminRoute && (
+              <button
+                type="button"
+                className="icon-btn"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setView((v) => (v === 'account' ? 'store' : 'account'));
+                }}
+                aria-label="Личный кабинет"
+                title="Личный кабинет покупателя"
+              >
+                <User size={16} />
+              </button>
+            )}
             <button
               type="button"
               className="icon-btn"
@@ -318,6 +393,24 @@ export default function App() {
             setIsAdminRoute(false);
           }}
         />
+      ) : view === 'account' ? (
+        <main>
+          <ClientCabinet
+            client={client}
+            clientAuth={severClientAuth}
+            products={products}
+            onClientChange={setClient}
+            onBackToStore={() => setView('store')}
+            onApplyPromo={() => {
+              setPromoInput('SEVER10');
+              setAppliedPromo('SEVER10');
+              setView('store');
+              setCartOpen(true);
+            }}
+            onRepeatOrder={handleRepeatOrder}
+            onOpenPrivacy={() => setPrivacyOpen(true)}
+          />
+        </main>
       ) : (
         <main>
           <section className="hero">
