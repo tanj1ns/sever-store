@@ -234,6 +234,11 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      {!isAdminRoute && (
+        <div className="lookbook-ticker mono">
+          DROP 04 / NORDIC TECH &bull; БЕСПЛАТНАЯ ДОСТАВКА ОТ 7 000 ₽ &bull; ПРОМОКОД SEVER10 (−10%)
+        </div>
+      )}
       <header className="header">
         <div className="container header__inner">
           <a
