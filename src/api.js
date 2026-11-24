@@ -2,8 +2,8 @@ const SECRET_ROUTE_SALT = 'sever-route-v1:';
 const SECRET_ROUTE_HASH = 'a6de223dbd290a1f554527b6e71004286022048c43e91483d44ba8a925399054';
 
 const ADMIN_EMAIL = 'admin@sever-wear.ru';
-const ADMIN_PASS_SALT = 'sever-adm-v1:';
-const ADMIN_PASS_HASH = 'af47724e5880fec7482b8da252ff2bae2714b8eb9235bb238b1d220a8433820c';
+const ADMIN_PASS_SALT = 'sever-adm-v2:';
+const ADMIN_PASS_HASH = 'a3fc27d8fef2609c6a6647d9342b65f1928deaaf21b6016aaa350c709c5f0adb';
 
 const STATIC_DB_KEY = 'sever_static_db_v1';
 const STATIC_SESSION_KEY = 'sever_static_admin_v1';

@@ -70,15 +70,17 @@ function initDatabase() {
 }
 
 function seed(db) {
+  const DEFAULT_ADMIN_SCRYPT =
+    '52b2177addca85c3339ececeb7288f99:b0c1a7dc2df8302e0c807226d26cb284f2cf9036cb5eef880b2eae14bd92468d0f59a42d1ea37cb3b3f1a75493c973c7ea51936007e9e0c2e8960edd388e81f0';
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@sever-wear.ru';
-  const adminPass = process.env.ADMIN_PASSWORD || 'Svr!16b0bfe0967';
+  const adminHash = process.env.ADMIN_PASSWORD ? hashPassword(process.env.ADMIN_PASSWORD) : DEFAULT_ADMIN_SCRYPT;
   const now = new Date().toISOString();
 
   const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail);
   if (!existingUser) {
     db.prepare(
       'INSERT INTO users (name, email, password_hash, role, created_at) VALUES (?, ?, ?, ?, ?)'
-    ).run('Администратор СЕВЕР', adminEmail, hashPassword(adminPass), 'admin', now);
+    ).run('Администратор СЕВЕР', adminEmail, adminHash, 'admin', now);
   }
 
   const productCount = db.prepare('SELECT COUNT(*) AS cnt FROM products').get().cnt;
