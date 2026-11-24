@@ -34,6 +34,7 @@ import {
 import ProductModal from './components/ProductModal';
 import PrivacyModal from './components/PrivacyModal';
 import AdminStore from './pages/AdminStore';
+import CookieBanner, { setCookie } from './components/CookieBanner';
 
 export default function App() {
   const [theme, setTheme] = useState(() => document.documentElement.getAttribute('data-theme') || 'dark');
@@ -62,6 +63,7 @@ export default function App() {
   const [honeypot, setHoneypot] = useState('');
   const [consent, setConsent] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [cookieForceOpen, setCookieForceOpen] = useState(false);
   const [orderBusy, setOrderBusy] = useState(false);
   const [orderError, setOrderError] = useState('');
   const [createdOrder, setCreatedOrder] = useState(null);
@@ -77,6 +79,7 @@ export default function App() {
     const next = theme === 'dark' ? 'light' : 'dark';
     setTheme(next);
     document.documentElement.setAttribute('data-theme', next);
+    setCookie('sever_theme', next);
     try {
       localStorage.setItem('sever_theme', next);
     } catch {}
@@ -775,10 +778,23 @@ export default function App() {
 
       {privacyOpen && <PrivacyModal onClose={() => setPrivacyOpen(false)} />}
 
+      <CookieBanner
+        prefix="sever"
+        forceOpen={cookieForceOpen}
+        onCloseForce={() => setCookieForceOpen(false)}
+        onOpenPrivacy={() => setPrivacyOpen(true)}
+      />
+
       <footer className="footer">
         <div className="container footer__inner">
           <span>&copy; 2026 СЕВЕР — Технологичная городская одежда и снаряжение</span>
-          <span>Санкт-Петербург &bull; order@sever-wear.ru</span>
+          <span className="footer__meta">
+            <span>Санкт-Петербург &bull; order@sever-wear.ru</span>
+            <span aria-hidden="true">·</span>
+            <button type="button" className="link-inline" onClick={() => setPrivacyOpen(true)}>Политика cookie</button>
+            <span aria-hidden="true">·</span>
+            <button type="button" className="link-inline" onClick={() => setCookieForceOpen(true)}>Настройки cookie</button>
+          </span>
         </div>
       </footer>
     </div>

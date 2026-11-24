@@ -23,7 +23,10 @@ export default function PrivacyModal({ onClose }) {
           Оформляя заказ в интернет-магазине «СЕВЕР», вы даёте согласие на обработку имени, номера телефона и адреса доставки исключительно для сборки заказа, передачи в службу доставки (СДЭК / курьер) и информирования о статусе посылки.
         </p>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.6 }}>
-          Данные не используются для рекламных рассылок без отдельного согласия и могут быть удалены по запросу на `order@sever-wear.ru`.
+          Сайт также использует cookie (<span className="mono">SameSite=Lax</span>): техническую <span className="mono">HttpOnly</span>-сессию <span className="mono">sever_sid</span>, выбранную тему <span className="mono">sever_theme</span>, согласие <span className="mono">sever_cookie_consent</span> и необязательный cookie <span className="mono">sever_prefs</span> (удаляется при выборе «Только необходимые»).
+        </p>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.6 }}>
+          Данные не используются для рекламных рассылок без отдельного согласия и могут быть удалены по вашему запросу на <span className="mono">order@sever-wear.ru</span>.
         </p>
       </div>
     </div>
